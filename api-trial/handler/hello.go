@@ -8,13 +8,13 @@ import (
 	"os"
 )
 
-type Hello struct{
+type Hello struct {
 	l *log.Logger
 }
 
-func NewHello(l *log.Logger) *Hello {
+func newHello(l *log.Logger) *Hello {
 	return &Hello{l}
-} 
+}
 
 func (h *Hello) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	d, err := ioutil.ReadAll(r.Body)
@@ -24,5 +24,5 @@ func (h *Hello) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	fmt.Printf("Data: %s", d)
-	fmt.Fprintf(os.Stdout, "Data: %s", d)
+	fmt.Fprintln(os.Stdout, "Data has been read")
 } 
