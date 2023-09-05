@@ -13,7 +13,7 @@ type Product struct {
 	DeletedOn   string
 }
 
-var produtList = []*Product{
+var productList = []*Product{
 	&Product{
 		ID: 1,
 		Name: "Latte",
