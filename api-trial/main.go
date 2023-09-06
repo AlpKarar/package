@@ -15,24 +15,25 @@ const PORT = ":9090"
 
 func main() {
 	l := log.New(os.Stdout, "api-trial", log.LstdFlags)
-	hh := handler.NewHello(l)
+	//hh := handler.NewHello(l)
 	gh := handler.NewGoodbye(l)
+	ph := handler.NewProducts(l)
 
 	mx := http.NewServeMux()
 
-	mx.Handle("/", hh)
 	mx.Handle("/goodbye", gh)
+	mx.Handle("/", ph)
+	//mx.Handle("/", hh)
 
 	server := &http.Server{
 		Addr: PORT,
 		Handler: mx,
 		IdleTimeout: 120 * time.Second,
-		ReadTimeout: 1 * time.Second,
-		WriteTimeout: 1 * time.Second,
+		ReadTimeout: 5 * time.Second,
+		WriteTimeout: 10 * time.Second,
 	}
 	
 	go func () {
-
 		l.Println("Server intialized running on port:", PORT[1:])
 
 		err := server.ListenAndServe()

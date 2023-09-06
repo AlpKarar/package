@@ -2,10 +2,9 @@ package handler
 
 import (
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"net/http"
-	"os"
 )
 
 type Hello struct {
@@ -17,12 +16,12 @@ func NewHello(l *log.Logger) *Hello {
 }
 
 func (h *Hello) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
-	d, err := ioutil.ReadAll(r.Body)
+	d, err := io.ReadAll(r.Body)
 
 	if err != nil {
 		http.Error(rw, "Data couldn't be read", http.StatusBadRequest)
 	}
 
-	fmt.Printf("Data: %s", d)
-	fmt.Fprintln(os.Stdout, "Data has been read")
+	fmt.Printf("Data: %s\n", d)
+	fmt.Println("----------------------------")
 } 
