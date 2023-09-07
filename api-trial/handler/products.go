@@ -36,22 +36,7 @@ func (p *Products) ServeHTTP(rw  http.ResponseWriter, r *http.Request) {
 }
 */
 
-func (p *Products) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
-	if r.Method == http.MethodGet {
-		p.getProducts(rw, r)
-		return
-	} else if r.Method == http.MethodPost {
-		p.addProducts(rw, r)
-		return
-	} else if r.Method == http.MethodPut {
-		p.updateProduct(rw, r)
-		return
-	}
-
-	rw.WriteHeader(http.StatusMethodNotAllowed)
-}
-
-func (p *Products) getProducts(rw http.ResponseWriter, r *http.Request) {
+func (p *Products) GetProducts(rw http.ResponseWriter, r *http.Request) {
 	lp := data.GetProducts()
 	err := lp.ToJSON(rw)
 

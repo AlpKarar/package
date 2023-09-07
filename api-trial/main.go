@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/AlpKarar/package/tree/master/api-trial/handler"
+	"github.com/gorilla/mux"
 )
 
 const PORT = ":9090"
@@ -16,18 +17,20 @@ const PORT = ":9090"
 func main() {
 	l := log.New(os.Stdout, "api-trial", log.LstdFlags)
 	//hh := handler.NewHello(l)
-	gh := handler.NewGoodbye(l)
+	//gh := handler.NewGoodbye(l)
 	ph := handler.NewProducts(l)
 
-	mx := http.NewServeMux()
+	gsm := mux.NewRouter()
 
-	mx.Handle("/goodbye", gh)
-	mx.Handle("/", ph)
+	getRouter := gsm.Methods("GET").Subrouter()
+
+	//getRouter.Handle("/goodbye", gh)
+	getRouter.HandleFunc("/", ph.GetProducts)
 	//mx.Handle("/", hh)
 
 	server := &http.Server{
 		Addr: PORT,
-		Handler: mx,
+		Handler: gsm,
 		IdleTimeout: 120 * time.Second,
 		ReadTimeout: 5 * time.Second,
 		WriteTimeout: 10 * time.Second,
