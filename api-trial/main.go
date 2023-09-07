@@ -15,7 +15,7 @@ import (
 const PORT = ":9090"
 
 func main() {
-	l := log.New(os.Stdout, "api-trial", log.LstdFlags)
+	l := log.New(os.Stdout, "api-trial ", log.LstdFlags)
 	//hh := handler.NewHello(l)
 	//gh := handler.NewGoodbye(l)
 	ph := handler.NewProducts(l)
@@ -23,9 +23,20 @@ func main() {
 	gsm := mux.NewRouter()
 
 	getRouter := gsm.Methods("GET").Subrouter()
+	getRouter.HandleFunc("/products", ph.GetProducts)
+
+	postRouter := gsm.Methods("POST").Subrouter()
+	postRouter.HandleFunc("/products", ph.AddProducts)
+	postRouter.Use(ph.MiddleWareProductValidation)
+
+	putRouter := gsm.Methods("PUT").Subrouter()
+	putRouter.HandleFunc("/products/{id:[0-9]+}", ph.UpdateProduct)
+	putRouter.Use(ph.MiddleWareProductValidation)
+
+	deleteRouter := gsm.Methods("DELETE").Subrouter()
+	deleteRouter.HandleFunc("/products/{id:[0-9]+}", ph.DeleteProduct)
 
 	//getRouter.Handle("/goodbye", gh)
-	getRouter.HandleFunc("/", ph.GetProducts)
 	//mx.Handle("/", hh)
 
 	server := &http.Server{

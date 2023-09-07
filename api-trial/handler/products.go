@@ -1,13 +1,13 @@
 package handler
 
 import (
-	"fmt"
+	"context"
 	"log"
 	"net/http"
-	"regexp"
 	"strconv"
 
 	"github.com/AlpKarar/package/tree/master/api-trial/data"
+	"github.com/gorilla/mux"
 )
 
 type Products struct {
@@ -45,24 +45,29 @@ func (p *Products) GetProducts(rw http.ResponseWriter, r *http.Request) {
 	} 
 }
 
-func (p *Products) addProducts(rw http.ResponseWriter, r *http.Request) {
+func (p *Products) AddProducts(rw http.ResponseWriter, r *http.Request) {
 	p.l.Println("POST Request got triggered ")
 
+	// Middleware handles the part below
+	/*
 	newProd := &data.Product{}
 	err := newProd.FromJSON(r.Body)
 
 	if err != nil {
 		http.Error(rw, "Unable to unmarshal json", http.StatusBadRequest)
 	}
+	*/
 
-	data.AddProduct(newProd)
+	newProd := r.Context().Value(KeyProduct{}).(data.Product)
+
+	data.AddProduct(&newProd)
 }
 
-func (p *Products) updateProduct(rw http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(rw, "PUT Request got triggered")
+func (p *Products) UpdateProduct(rw http.ResponseWriter, r *http.Request) {
+	p.l.Println("PUT Request got triggered")
 
+	/*
 	newProd := &data.Product{}
-
 	err := newProd.FromJSON(r.Body)
 
 	if err != nil {
@@ -84,6 +89,56 @@ func (p *Products) updateProduct(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	id, _ := strconv.Atoi(g[0][1])
+	*/
 
-	data.UpdateProduct(id, newProd)
+	vars := mux.Vars(r)
+	id, err := strconv.Atoi(vars["id"])
+
+	if err != nil {
+		http.Error(rw, "String convert fault", http.StatusBadRequest)
+		return
+	}
+
+	newProd := r.Context().Value(KeyProduct{}).(data.Product)
+
+	//data.UpdateProduct(id, newProd)
+	data.UpdateProduct(id, &newProd)
+}
+
+func (p *Products) DeleteProduct(rw http.ResponseWriter, r *http.Request) {
+	p.l.Println("DELETE request got trigerred")
+
+	vars := mux.Vars(r)
+	id, err := strconv.Atoi(vars["id"])
+
+	if err != nil {
+		http.Error(rw, "String convert fault", http.StatusBadRequest)
+	}
+
+	errDelete := data.DeleteProduct(id)
+
+	if errDelete != nil {
+		http.Error(rw , errDelete.Error(), http.StatusBadRequest)
+		return
+	}
+}
+
+type KeyProduct struct{}
+
+func (p *Products) MiddleWareProductValidation(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
+		prod := data.Product{}
+		err := prod.FromJSON(r.Body)
+
+		if err != nil {
+			p.l.Println("[ERROR] deserializing product", err)
+			http.Error(rw, "Error in reading product", http.StatusBadRequest)
+			return
+		}
+
+		ctx := context.WithValue(r.Context(), KeyProduct{}, prod)
+		req := r.WithContext(ctx)
+
+		next.ServeHTTP(rw, req)
+	})
 }

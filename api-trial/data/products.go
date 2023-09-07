@@ -67,6 +67,34 @@ func getNewProdId() int {
 	return ProductList[len(ProductList) - 1].ID + 1
 }
 
+var ErrProductNotAllowedToDelete = fmt.Errorf("Product Not Allowed To Delete")
+
+func DeleteProduct(id int) error {
+	isId := false
+
+	for _, prod := range ProductList {
+		if prod.ID == id {
+			isId = true
+		}
+	}
+
+	if !isId {
+		return ErrProductNotAllowedToDelete
+	}
+
+	tmpProductList := []*Product{}
+
+	for _, prod := range ProductList {
+		if prod.ID != id {
+			tmpProductList = append(tmpProductList, prod)
+		}
+	}
+
+	ProductList = tmpProductList
+
+	return nil
+}
+
 var ProductList = []*Product{
 	&Product{
 		ID: 1,
