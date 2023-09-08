@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/AlpKarar/package/tree/master/api-trial/handler"
+	gorillaHandlers "github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 )
 
@@ -39,9 +40,11 @@ func main() {
 	//getRouter.Handle("/goodbye", gh)
 	//mx.Handle("/", hh)
 
+	crs := gorillaHandlers.CORS(gorillaHandlers.AllowedOrigins([]string{"*"}))
+
 	server := &http.Server{
 		Addr: PORT,
-		Handler: gsm,
+		Handler: crs(gsm),
 		IdleTimeout: 120 * time.Second,
 		ReadTimeout: 5 * time.Second,
 		WriteTimeout: 10 * time.Second,
