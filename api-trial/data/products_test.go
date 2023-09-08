@@ -3,15 +3,24 @@ package data
 import "testing"
 
 func TestChecksValidation(t *testing.T) {
-	p := &Product{
-		Name: "Tea",
-		Price: 1.00,
-		SKU: "aaaa-aaa-aaa",
+	pList := []*Product{
+		&Product{
+			Name: "Tea",
+			Price: 1.00,
+			SKU: "aaaa-aaa-aaa",
+		},
+		&Product{
+			Name: "Coffee 2",
+			Price: 3.75,
+			SKU: "aax-34",
+		},
 	}
 
-	err := p.Validate()
+	for _, p := range pList {
+		err := p.Validate()
 
-	if err != nil {
-		t.Fatal(err)
+		if err != nil {
+			t.Fatal(err)
+		}
 	}
 }
